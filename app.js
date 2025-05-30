@@ -1,34 +1,35 @@
 // Importa Express per creare il server
 const express = require('express');
 
-// Crea un'istanza dell'app Express (il server)
+// Crea l'app Express, cioè il server
 const app = express();
 
-// Definisce la porta su cui il server sarà in ascolto
+// Definisci la porta su cui il server ascolta (3000)
 const port = 3000;
 
-// Importa il router creato per gestire le rotte /posts
-const postRouter = require('./router/posts');  // Assicurati che la cartella si chiami "router" e il file "posts.js"
+// Importa il router che gestisce le rotte /posts
+// Assicurati che la cartella si chiami "routers" e il file "posts.js"
+const postRouter = require('./routers/posts');
 
 // Middleware per servire file statici dalla cartella "public"
-// Se qualcuno richiede un file che esiste in "public", Express lo invia direttamente
+// Se qualcuno chiede un file statico, Express lo serve senza passare alle rotte
 app.use(express.static('public'));
 
-// Middleware integrato di Express che permette di leggere dati JSON dal corpo delle richieste
-// Utile per gestire API REST con dati inviati in formato JSON
+// Middleware per leggere dati JSON dal corpo delle richieste
+// Serve per gestire API REST con dati JSON inviati dal client
 app.use(express.json());
 
-// Dice all'app di usare il router 'postRouter' per tutte le richieste che iniziano con /posts
-// Esempio: GET /posts o GET /posts/5 saranno gestiti dentro router/posts.js
+// Usa il router per tutte le richieste che iniziano con /posts
+// Es: GET /posts o GET /posts/1 saranno gestite dentro routers/posts.js
 app.use('/posts', postRouter);
 
-// Route per la homepage: quando si accede a "/", risponde con un messaggio
+// Rotta per la homepage
 app.get("/", (req, res) => {
-    console.log("Server del mio blog"); // Logga in console ogni volta che qualcuno visita la home
-    res.send("Benvenuto nel mio blog"); // Risponde al browser/client con un messaggio semplice
+    console.log("Server del mio blog");  // Logga in console ogni volta che qualcuno visita la home
+    res.send("Benvenuto nel mio blog");  // Risponde con un messaggio semplice
 });
 
-// Avvia il server sulla porta specificata e stampa un messaggio in console
+// Avvia il server sulla porta definita e stampa un messaggio in console
 app.listen(port, () => {
     console.log(`Server in ascolto sulla porta ${port}`);
 });
