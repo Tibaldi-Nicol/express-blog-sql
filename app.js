@@ -1,40 +1,34 @@
-// Importa il modulo Express
+// Importa Express per creare il server
 const express = require('express');
 
-// Crea un'istanza dell'app Express
+// Crea un'istanza dell'app Express (il server)
 const app = express();
 
 // Definisce la porta su cui il server sarà in ascolto
 const port = 3000;
 
-/**
- * Middleware per servire file statici dalla cartella "public".
- * Express verifica se il file richiesto esiste nella cartella "public"
- * e lo restituisce senza passare il controllo ai successivi middleware o route.
- */
+// Importa il router creato per gestire le rotte /posts
+const postRouter = require('./router/posts');  // Assicurati che la cartella si chiami "router" e il file "posts.js"
+
+// Middleware per servire file statici dalla cartella "public"
+// Se qualcuno richiede un file che esiste in "public", Express lo invia direttamente
 app.use(express.static('public'));
 
-/**
- * Middleware integrato di Express che analizza i payload JSON.
- * Questo permette di ricevere e elaborare dati JSON dal body della richiesta,
- * utile quando il client invia dati per API REST.
- */
+// Middleware integrato di Express che permette di leggere dati JSON dal corpo delle richieste
+// Utile per gestire API REST con dati inviati in formato JSON
 app.use(express.json());
 
+// Dice all'app di usare il router 'postRouter' per tutte le richieste che iniziano con /posts
+// Esempio: GET /posts o GET /posts/5 saranno gestiti dentro router/posts.js
+app.use('/posts', postRouter);
 
-/**
- * Definisce una route per la homepage
- * Quando un client fa una richiesta GET a "/", il server risponde con un messaggio
- */
+// Route per la homepage: quando si accede a "/", risponde con un messaggio
 app.get("/", (req, res) => {
-    console.log("Server del mio blog"); // Log nella console ogni volta che questa route viene richiesta
-    res.send("Benvenuto nel mio blog"); // Risponde al client
+    console.log("Server del mio blog"); // Logga in console ogni volta che qualcuno visita la home
+    res.send("Benvenuto nel mio blog"); // Risponde al browser/client con un messaggio semplice
 });
 
-/**
- * Avvia il server e lo mette in ascolto sulla porta specificata.
- * La funzione di callback stampa un messaggio nella console
- */
+// Avvia il server sulla porta specificata e stampa un messaggio in console
 app.listen(port, () => {
     console.log(`Server in ascolto sulla porta ${port}`);
 });
