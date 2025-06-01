@@ -1,44 +1,49 @@
-// Importa la connessione al database
+// Importa la connessione al database MySQL configurata in ../config/db.js
 const db = require('../config/db');
 
-// INDEX – restituisce tutti i post
+// Funzione che restituisce l'elenco di tutti i post dal DB
 const index = (req, res) => {
-    const sql = 'SELECT * FROM posts';
-    db.query(sql, (err, results) => {
+    const sql = 'SELECT * FROM posts';            // Query SQL per prendere tutti i post
+    db.query(sql, (err, results) => {             // Esegue la query sul DB
         if (err) {
             console.error('Errore nel recupero dei post:', err);
-            return res.status(500).json({ error: 'Errore del server' });
+            return res.status(500).json({ error: 'Errore del server' });  // Risposta in caso di errore DB
         }
-        res.json(results);
+        res.json(results);                         // Invia la lista dei post in formato JSON al client
     });
 };
 
-// SHOW – restituisce un post per ID (Milestone 4)
+// Funzione che restituisce un singolo post dato l'id (SHOW)
 const show = (req, res) => {
-    const postId = req.params.id;
-    res.send(`Dettaglio del post con ID: ${postId}`);
-};
-
-// DESTROY – elimina un post per ID
-const destroy = (req, res) => {
-    const postId = req.params.id;
-    const sql = 'DELETE FROM posts WHERE id = ?';
-
-    db.query(sql, [postId], (err, result) => {
+    const postId = req.params.id;                  // Prende l'id dalla URL (es. /posts/5 -> id=5)
+    const sql = 'SELECT * FROM posts WHERE id = ?'; // Query per trovare il post con quell'id
+    db.query(sql, [postId], (err, results) => {   // Esegue la query con id come parametro per evitare SQL injection
         if (err) {
-            console.error('Errore durante l\'eliminazione:', err);
-            return res.status(500).json({ error: 'Errore del server' });
+            console.error('Errore nel recupero del post:', err);
+            return res.status(500).json({ error: 'Errore del server' }); // Errore server
         }
-
-        if (result.affectedRows === 0) {
-            // Nessun post trovato con quell'id
-            return res.status(404).json({ error: 'Post non trovato' });
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Post non trovato' }); // Se post non trovato
         }
-
-        // 204 = No Content = OK ma nessun contenuto nella risposta
-        res.status(204).send();
+        res.json(results[0]);                       // Invia il singolo post trovato in formato JSON
     });
 };
 
-// Esporta tutte le funzioni
+// Funzione per eliminare un post dal DB dato l'id (DESTROY)
+const destroy = (req, res) => {
+    const postId = req.params.id;                  // Prende l'id dalla URL (es. /posts/5 -> id=5)
+    const sql = 'DELETE FROM posts WHERE id = ?'; // Query per eliminare il post con quell'id
+    db.query(sql, [postId], (err, result) => {    // Esegue la query con id
+        if (err) {
+            console.error('Errore nell\'eliminazione del post:', err);
+            return res.status(500).json({ error: 'Errore del server' }); // Errore server
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Post non trovato' }); // Se nessun post eliminato, id non esiste
+        }
+        res.status(204).send();                     // Risposta 204 No Content se eliminato con successo
+    });
+};
+
+// Esporta le funzioni per essere usate nel router
 module.exports = { index, show, destroy };
