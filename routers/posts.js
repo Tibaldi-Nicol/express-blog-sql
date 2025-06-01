@@ -17,3 +17,14 @@ router.get('/:id', show);
 
 // Esporta il router per poterlo usare nel file principale (app.js)
 module.exports = router;
+// Importa le funzioni dal controller
+const { index, show, destroy } = require('../controllers/postsController');
+
+// Route GET /posts
+router.get('/', index);
+
+// Route GET /posts/:id
+router.get('/:id', show);
+
+//  Route DELETE /posts/:id
+router.delete('/:id', destroy);
